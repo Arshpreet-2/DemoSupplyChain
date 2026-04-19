@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChainPulse — Supply Chain Intelligence Command Center</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap');
+
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f7f7f5;
+  --bg-tertiary: #f0efe9;
+  --bg-danger: #fcebeb;
+  --bg-warning: #faeeda;
+  --bg-success: #eaf3de;
+  --bg-info: #e6f1fb;
+
+  --text-primary: #1a1a18;
+  --text-secondary: #5f5e5a;
+  --text-tertiary: #88877f;
+  --text-danger: #a32d2d;
+  --text-warning: #633806;
+  --text-success: #27500a;
+  --text-info: #0c447c;
+
+  --border-default: rgba(0,0,0,0.12);
+  --border-emphasis: rgba(0,0,0,0.24);
+  --border-danger: rgba(162,45,45,0.35);
+  --border-warning: rgba(99,56,6,0.35);
+  --border-success: rgba(39,80,10,0.35);
+  --border-info: rgba(12,68,124,0.35);
+
+  --red: #e24b4a;
+  --amber: #ef9f27;
+  --green: #1d9e75;
+  --blue: #378add;
+  --gray: #888780;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #1e1e1c;
+    --bg-secondary: #252523;
+    --bg-tertiary: #161614;
+    --bg-danger: #2a1515;
+    --bg-warning: #261c08;
+    --bg-success: #111f06;
+    --bg-info: #071828;
+    --text-primary: #f0efe9;
+    --text-secondary: #b4b2a9;
+    --text-tertiary: #888780;
+    --text-danger: #e88080;
+    --text-warning: #e0b870;
+    --text-success: #a8d080;
+    --text-info: #90c0f0;
+    --border-default: rgba(255,255,255,0.1);
+    --border-emphasis: rgba(255,255,255,0.2);
+  }
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+
+.app-wrapper {
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+/* Top Bar */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 0.5px solid var(--border-default);
+  margin-bottom: 1rem;
+}
+
+.logo-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+}
+
+.brand {
+  flex: 0 0 auto;
+}
+
+.brand-title {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.brand-subtitle {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.2;
+}
+
+.topbar-spacer { flex: 1; }
+
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-success);
+  color: var(--text-success);
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: livePulse 2s ease infinite;
+}
+
+@keyframes livePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.clock {
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+/* Nav Tabs */
+.nav-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.nav-tab {
+  border: 0.5px solid var(--border-emphasis);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  padding: 6px 14px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.nav-tab:hover { background: var(--bg-secondary); }
+.nav-tab:active { transform: scale(0.97); }
+
+.nav-tab.active {
+  background: var(--bg-info);
+  color: var(--text-info);
+  border-color: var(--border-info);
+}
+
+/* Buttons (general) */
+button {
+  border: 0.5px solid var(--border-emphasis);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  padding: 5px 12px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, opacity 0.2s;
+}
+
+button:hover { background: var(--bg-secondary); }
+button:active { transform: scale(0.97); }
+button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(55,138,221,0.2);
+}
+button:disabled { cursor: default; }
+button:disabled:hover { background: inherit; }
+
+.btn-primary {
+  background: var(--bg-info);
+  color: var(--text-info);
+  border-color: var(--border-info);
+}
+.btn-primary:hover { background: var(--bg-info); opacity: 0.85; }
+
+.btn-danger {
+  background: var(--bg-danger);
+  color: var(--text-danger);
+  border-color: var(--border-danger);
+}
+
+.btn-done {
+  background: var(--bg-success);
+  color: var(--text-success);
+  border-color: var(--border-success);
+}
+
+/* Cards */
+.card {
+  background: var(--bg-primary);
+  border: 0.5px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.25rem;
+}
+
+.card-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.card-subtitle {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+}
+
+/* Metric cards */
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 1rem;
+}
+
+.metric-card {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  padding: 0.875rem 1rem;
+  animation: fadeUp 0.3s ease both;
+}
+
+.metric-card:nth-child(1) { animation-delay: 0.05s; }
+.metric-card:nth-child(2) { animation-delay: 0.1s; }
+.metric-card:nth-child(3) { animation-delay: 0.15s; }
+.metric-card:nth-child(4) { animation-delay: 0.2s; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.metric-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.metric-value {
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.metric-sub {
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+.metric-sub.danger { color: var(--text-danger); }
+.metric-sub.warning { color: var(--text-warning); }
+.metric-sub.success { color: var(--text-success); }
+.metric-sub.neutral { color: var(--text-secondary); }
+
+/* Two-column */
+.two-col {
+  display: grid;
+  grid-template-columns: 58% calc(42% - 12px);
+  gap: 12px;
+  align-items: start;
+}
+
+/* Alerts */
+.alert-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: 0.5px solid;
+  margin-bottom: 10px;
+  transition: opacity 0.3s;
+}
+
+.alert-item:last-child { margin-bottom: 0; }
+
+.alert-item.danger { background: var(--bg-danger); border-color: var(--border-danger); }
+.alert-item.warning { background: var(--bg-warning); border-color: var(--border-warning); }
+.alert-item.info { background: var(--bg-info); border-color: var(--border-info); }
+.alert-item.success { background: var(--bg-success); border-color: var(--border-success); }
+
+.alert-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.alert-icon.danger { background: var(--red); }
+.alert-icon.warning { background: var(--amber); }
+.alert-icon.info { background: var(--blue); }
+
+.alert-body { flex: 1; min-width: 0; }
+
+.alert-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.alert-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.alert-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.alert-time {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Route Map */
+.route-map-container {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  padding: 10px;
+}
+
+.route-map-container svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.route-legend {
+  display: flex;
+  gap: 14px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.legend-line-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-line {
+  width: 16px;
+  height: 2px;
+  border-radius: 1px;
+}
+
+/* Risk Predictor */
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.slider-label {
+  min-width: 90px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.slider-row input[type=range] {
+  flex: 1;
+  accent-color: var(--blue);
+}
+
+.slider-value {
+  min-width: 24px;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: right;
+}
+
+.predictor-result {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  margin-top: 12px;
+}
+
+.result-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.result-value {
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.2;
+  margin-top: 2px;
+}
+
+.result-value.green { color: var(--text-success); }
+.result-value.amber { color: var(--text-warning); }
+.result-value.red { color: var(--text-danger); }
+
+.result-desc {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+/* Stacked card below map */
+.card + .card-stack { margin-top: 12px; }
+
+/* Filters row */
+.filter-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+select {
+  border: 0.5px solid var(--border-emphasis);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  padding: 6px 10px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+select:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(55,138,221,0.2);
+}
+
+/* Table */
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 0.5px solid var(--border-default);
+  white-space: nowrap;
+}
+
+td {
+  font-size: 12px;
+  padding: 10px 8px;
+  border-bottom: 0.5px solid var(--border-default);
+  vertical-align: middle;
+}
+
+tbody tr:last-child td { border-bottom: none; }
+
+tbody tr { transition: background 0.15s; }
+tbody tr:hover { background: var(--bg-secondary); }
+
+.mono {
+  font-family: monospace;
+  font-size: 11px;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.status-dot.on-track { background: var(--green); }
+.status-dot.at-risk { background: var(--amber); }
+.status-dot.delayed { background: var(--red); }
+.status-dot.rerouted { background: var(--blue); }
+
+/* Pills */
+.pill {
+  display: inline-block;
+  border-radius: 20px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.pill.danger { background: var(--bg-danger); color: var(--text-danger); }
+.pill.warning { background: var(--bg-warning); color: var(--text-warning); }
+.pill.success { background: var(--bg-success); color: var(--text-success); }
+.pill.info { background: var(--bg-info); color: var(--text-info); }
+
+/* Supplier cards */
+.supplier-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.supplier-card {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+}
+
+.supplier-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.supplier-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.supplier-loc {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 1px;
+}
+
+.risk-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--bg-tertiary);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.risk-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+}
+
+.risk-bar-fill.low { background: var(--green); }
+.risk-bar-fill.med { background: var(--amber); }
+.risk-bar-fill.high { background: var(--red); }
+
+/* Chart containers */
+.chart-wrapper {
+  height: 220px;
+  position: relative;
+}
+
+.chart-wrapper.short {
+  height: 200px;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 14px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.chart-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chart-legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+/* Coordination */
+.incident-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.incident-title {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.incident-meta {
+  font-size: 12px;
+  color: var(--text-danger);
+  font-weight: 500;
+}
+
+.team-pills {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.team-pill {
+  cursor: pointer;
+  border: 0.5px solid var(--border-emphasis);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  padding: 5px 12px;
+  font-size: 12px;
+  font-family: inherit;
+}
+
+.team-pill.active {
+  background: var(--bg-info);
+  color: var(--text-info);
+  border-color: var(--border-info);
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px;
+  border-bottom: 0.5px solid var(--border-default);
+}
+
+.task-item:last-child { border-bottom: none; }
+
+.task-checkbox {
+  width: 16px;
+  height: 16px;
+  border: 0.5px solid var(--border-emphasis);
+  border-radius: 3px;
+  flex-shrink: 0;
+  cursor: pointer;
+  background: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: transparent;
+  font-family: inherit;
+  padding: 0;
+}
+
+.task-checkbox.done {
+  background: var(--bg-success);
+  border-color: var(--border-success);
+  color: var(--text-success);
+}
+
+.task-text {
+  flex: 1;
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+.task-text.done {
+  text-decoration: line-through;
+  color: var(--text-tertiary);
+}
+
+.task-team {
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.task-urgency {
+  white-space: nowrap;
+}
+
+/* AI Summary */
+.ai-summary-section {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 0.5px solid var(--border-default);
+}
+
+.ai-summary-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+
+.ai-summary-box {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.template-button-wrapper {
+  margin-top: 12px;
+}
+
+/* Trends */
+.trends-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 1rem;
+}
+
+/* Tab content */
+.tab-content {
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.tab-content.hidden { display: none; }
+
+/* Content spacing */
+.overview-content > div { margin-bottom: 1rem; }
+.overview-content > div:last-child { margin-bottom: 0; }
+
+/* Responsive */
+@media (max-width: 1000px) {
+  .metrics-row { grid-template-columns: repeat(2, 1fr); }
+  .two-col { grid-template-columns: 1fr; }
+  .trends-row { grid-template-columns: 1fr; }
+  .supplier-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 500px) {
+  .metrics-row { grid-template-columns: 1fr; }
+  .alert-item { flex-wrap: wrap; }
+  .alert-time { width: 100%; text-align: right; }
+}
+</style>
+</head>
+<body>
+<div class="app-wrapper">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="logo-dot"></div>
+    <div class="brand">
+      <div class="brand-title">ChainPulse</div>
+      <div class="brand-subtitle">Supply Intelligence</div>
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="live-badge">
+      <span class="live-dot"></span>
+      <span>Live</span>
+    </div>
+    <div class="clock" id="clock-display">Updated 0s ago</div>
+  </header>
+
+  <!-- NAV TABS -->
+  <nav class="nav-tabs" role="tablist">
+    <button class="nav-tab active" onclick="switchTab('overview', this)">Overview</button>
+    <button class="nav-tab" onclick="switchTab('shipments', this)">Shipments</button>
+    <button class="nav-tab" onclick="switchTab('supplier', this)">Supplier risk</button>
+    <button class="nav-tab" onclick="switchTab('coordination', this)">Coordination</button>
+    <button class="nav-tab" onclick="switchTab('trends', this)">Trends</button>
+  </nav>
+
+  <main role="main">
+
+    <!-- ============================================ -->
+    <!-- TAB 1 — OVERVIEW                             -->
+    <!-- ============================================ -->
+    <div id="tab-overview" class="tab-content overview-content">
+
+      <div class="metrics-row">
+        <div class="metric-card">
+          <div class="metric-label">Active shipments</div>
+          <div class="metric-value">1,284</div>
+          <div class="metric-sub neutral">Across 6 routes</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">At-risk shipments</div>
+          <div class="metric-value" id="at-risk-count">47</div>
+          <div class="metric-sub danger">Predicted in next 4 hrs</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Active disruptions</div>
+          <div class="metric-value">3</div>
+          <div class="metric-sub warning">2 weather · 1 traffic</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">On-time delivery rate</div>
+          <div class="metric-value">87%</div>
+          <div class="metric-sub success">↑ 4% vs last week</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <!-- Left: Alerts -->
+        <div class="card">
+          <div class="card-title">Live disruption alerts</div>
+          <div class="card-subtitle">AI-predicted · sorted by impact</div>
+
+          <div class="alert-item danger" id="alert-1">
+            <div class="alert-icon danger">!</div>
+            <div class="alert-body">
+              <div class="alert-title">NH44 waterlogging — Assam corridor</div>
+              <div class="alert-desc">38 trucks at high risk. Heavy rain forecast 3h. Alternate via NH37 adds 52 min but clear.</div>
+              <div class="alert-actions">
+                <button class="btn-primary" onclick="handleActionClick(this,'reroute')">Re-route all 38 ↗</button>
+                <button onclick="handleActionClick(this,'notify_customers')">Alert customers ↗</button>
+                <button onclick="handleActionClick(this,'dismiss')">Dismiss</button>
+              </div>
+            </div>
+            <div class="alert-time">2 min ago</div>
+          </div>
+
+          <div class="alert-item warning" id="alert-2">
+            <div class="alert-icon warning">~</div>
+            <div class="alert-body">
+              <div class="alert-title">Port congestion — JNPT Mumbai</div>
+              <div class="alert-desc">11 containers delayed 6–10 hrs. 3 downstream warehouses need restocking time adjustment.</div>
+              <div class="alert-actions">
+                <button class="btn-primary" onclick="handleActionClick(this,'notify_warehouses')">Notify warehouses ↗</button>
+                <button onclick="handleActionClick(this,'dismiss')">Dismiss</button>
+              </div>
+            </div>
+            <div class="alert-time">18 min ago</div>
+          </div>
+
+          <div class="alert-item warning" id="alert-3">
+            <div class="alert-icon warning">~</div>
+            <div class="alert-body">
+              <div class="alert-title">Supplier risk spike — Tier 2, Chennai</div>
+              <div class="alert-desc">Rajan Components: financial stress news + delayed shipment history detected.</div>
+              <div class="alert-actions">
+                <button class="btn-primary" onclick="handleActionClick(this,'backup_supplier')">Activate backup supplier ↗</button>
+                <button onclick="handleActionClick(this,'dismiss')">Dismiss</button>
+              </div>
+            </div>
+            <div class="alert-time">41 min ago</div>
+          </div>
+
+          <div class="alert-item info" id="alert-4">
+            <div class="alert-icon info">i</div>
+            <div class="alert-body">
+              <div class="alert-title">Demand spike predicted — Delhi NCR</div>
+              <div class="alert-desc">Festival season signal. Electronics demand likely up 34% in 72h. Restock recommended.</div>
+              <div class="alert-actions">
+                <button class="btn-primary" onclick="handleActionClick(this,'restock')">Trigger restock order ↗</button>
+              </div>
+            </div>
+            <div class="alert-time">1 hr ago</div>
+          </div>
+        </div>
+
+        <!-- Right: Stacked cards -->
+        <div>
+          <!-- Route Map -->
+          <div class="card">
+            <div class="card-title">Route risk — live status</div>
+            <div class="card-subtitle">&nbsp;</div>
+            <div class="route-map-container">
+              <svg viewBox="0 0 320 150" role="img" aria-label="Route risk map showing three routes across India: Mumbai-Delhi clear, Chennai-Hyderabad at risk, Guwahati-Kolkata blocked">
+                <!-- Route 1: Mumbai-Delhi (green, clear) -->
+                <path d="M 40 40 Q 140 20 260 35" fill="none" stroke="#1d9e75" stroke-width="2.5" stroke-linecap="round"/>
+                <circle cx="40" cy="40" r="4" fill="#1d9e75"/>
+                <circle cx="260" cy="35" r="4" fill="#1d9e75"/>
+                <text x="40" y="28" font-size="9" fill="#5f5e5a">Mumbai–Delhi · Clear</text>
+
+                <!-- Route 2: Chennai-Hyderabad (amber, at risk) -->
+                <path d="M 50 85 Q 160 65 270 80" fill="none" stroke="#ef9f27" stroke-width="2.5" stroke-linecap="round"/>
+                <circle cx="50" cy="85" r="4" fill="#ef9f27"/>
+                <circle cx="270" cy="80" r="4" fill="#ef9f27"/>
+                <text x="50" y="75" font-size="9" fill="#5f5e5a">Chennai–Hyd · At risk</text>
+
+                <!-- Route 3: Guwahati-Kolkata (red, blocked) -->
+                <path d="M 60 130 Q 160 115 270 128" fill="none" stroke="#e24b4a" stroke-width="2.5" stroke-linecap="round"/>
+                <circle cx="60" cy="130" r="4" fill="#e24b4a"/>
+                <circle cx="270" cy="128" r="4" fill="#e24b4a"/>
+                <text x="60" y="120" font-size="9" fill="#5f5e5a">Guwahati–Kol · BLOCKED</text>
+
+                <!-- Pulsing alert on blocked route -->
+                <circle cx="165" cy="122" r="9" fill="#e24b4a" opacity="0.4">
+                  <animate attributeName="r" values="7;13;7" dur="1.5s" repeatCount="indefinite"/>
+                  <animate attributeName="opacity" values="0.5;0.15;0.5" dur="1.5s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="165" cy="122" r="5" fill="#e24b4a">
+                  <animate attributeName="opacity" values="1;0.5;1" dur="1.5s" repeatCount="indefinite"/>
+                </circle>
+              </svg>
+            </div>
+            <div class="route-legend">
+              <span class="legend-line-item"><span class="legend-line" style="background:#1d9e75"></span>Clear</span>
+              <span class="legend-line-item"><span class="legend-line" style="background:#ef9f27"></span>At risk</span>
+              <span class="legend-line-item"><span class="legend-line" style="background:#e24b4a"></span>Disrupted</span>
+            </div>
+          </div>
+
+          <!-- AI Risk Predictor -->
+          <div class="card card-stack">
+            <div class="card-title">AI risk predictor</div>
+            <div class="card-subtitle">Simulate disruption impact</div>
+
+            <div class="slider-row">
+              <span class="slider-label">Weather severity</span>
+              <input type="range" min="1" max="10" value="4" id="weather-slider" oninput="updateRisk()">
+              <span class="slider-value" id="weather-value">4</span>
+            </div>
+            <div class="slider-row">
+              <span class="slider-label">Traffic index</span>
+              <input type="range" min="1" max="10" value="3" id="traffic-slider" oninput="updateRisk()">
+              <span class="slider-value" id="traffic-value">3</span>
+            </div>
+            <div class="slider-row">
+              <span class="slider-label">Port load</span>
+              <input type="range" min="1" max="10" value="6" id="port-slider" oninput="updateRisk()">
+              <span class="slider-value" id="port-value">6</span>
+            </div>
+
+            <div class="predictor-result">
+              <div class="result-label">Predicted shipments at risk</div>
+              <div class="result-value" id="predictor-value">0</div>
+              <div class="result-desc" id="predictor-desc">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- TAB 2 — SHIPMENTS                            -->
+    <!-- ============================================ -->
+    <div id="tab-shipments" class="tab-content hidden">
+      <div class="filter-row">
+        <select id="filter-status" onchange="filterShipments()">
+          <option value="all">All statuses</option>
+          <option value="at-risk">At risk</option>
+          <option value="delayed">Delayed</option>
+          <option value="on-track">On track</option>
+          <option value="rerouted">Rerouted</option>
+        </select>
+        <select id="filter-route" onchange="filterShipments()">
+          <option value="all">All routes</option>
+          <option value="Mumbai–Delhi">Mumbai–Delhi</option>
+          <option value="Chennai–Hyd">Chennai–Hyd</option>
+          <option value="Kolkata–Guw">Kolkata–Guw</option>
+        </select>
+      </div>
+
+      <div class="card">
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Shipment ID</th>
+                <th scope="col">Route</th>
+                <th scope="col">ETA</th>
+                <th scope="col">Status</th>
+                <th scope="col">Risk score</th>
+                <th scope="col">Issue</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody id="shipments-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- TAB 3 — SUPPLIER RISK                        -->
+    <!-- ============================================ -->
+    <div id="tab-supplier" class="tab-content hidden">
+      <div class="metrics-row" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="metric-card">
+          <div class="metric-label">Low risk suppliers</div>
+          <div class="metric-value">18</div>
+          <div class="metric-sub success">No action needed</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Medium risk suppliers</div>
+          <div class="metric-value">7</div>
+          <div class="metric-sub warning">Monitor closely</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">High risk suppliers</div>
+          <div class="metric-value">2</div>
+          <div class="metric-sub danger">Activate backup</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">Supplier risk scores</div>
+          <div class="card-subtitle">Signals: delivery history, financial stress, news, social</div>
+          <div class="supplier-grid" id="supplier-grid"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">What's driving risk scores</div>
+          <div class="card-subtitle">Breakdown of risk signal types</div>
+          <div class="chart-wrapper">
+            <canvas id="riskSignalChart" role="img" aria-label="Bar chart showing delivery delays 42%, financial stress 28%, news signals 18%, and social signals 12%">
+              Risk signals: delivery delays 42%, financial stress 28%, news signals 18%, social signals 12%
+            </canvas>
+          </div>
+          <div class="chart-legend">
+            <span class="chart-legend-item"><span class="chart-legend-swatch" style="background:#e24b4a"></span>Delivery delays · 42%</span>
+            <span class="chart-legend-item"><span class="chart-legend-swatch" style="background:#ef9f27"></span>Financial stress · 28%</span>
+            <span class="chart-legend-item"><span class="chart-legend-swatch" style="background:#378add"></span>News signals · 18%</span>
+            <span class="chart-legend-item"><span class="chart-legend-swatch" style="background:#888780"></span>Social signals · 12%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- TAB 4 — COORDINATION                         -->
+    <!-- ============================================ -->
+    <div id="tab-coordination" class="tab-content hidden">
+      <div class="card">
+        <div class="incident-header">
+          <div class="incident-title">Cross-team coordination — active incident</div>
+          <div class="incident-meta">NH44 waterlogging · 38 shipments affected</div>
+        </div>
+
+        <div class="team-pills" id="team-pills">
+          <button class="team-pill active" onclick="filterTeam('all', this)">All teams</button>
+          <button class="team-pill" onclick="filterTeam('Logistics', this)">Logistics</button>
+          <button class="team-pill" onclick="filterTeam('Warehouse', this)">Warehouse</button>
+          <button class="team-pill" onclick="filterTeam('Customer service', this)">Customer service</button>
+          <button class="team-pill" onclick="filterTeam('Procurement', this)">Procurement</button>
+        </div>
+
+        <div class="task-list" id="task-list"></div>
+
+        <div class="ai-summary-section">
+          <div class="ai-summary-title">AI-generated incident summary</div>
+          <div class="ai-summary-box">
+            3 of your 38 trucks heading to Delhi are blocked on NH44 near Guwahati due to waterlogging. The alternate route via NH37 adds 52 minutes but is currently clear. Warehouse Delhi-4 should expect goods 1.4 hrs later than scheduled. 22 customers are due for an ETA update. Procurement should check buffer stock for SKUs TK-440 and TK-441 in case restocking is needed early.
+          </div>
+          <div class="template-button-wrapper">
+            <button class="btn-primary" onclick="handleActionClick(this,'template')">Get customer message template →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- TAB 5 — TRENDS                               -->
+    <!-- ============================================ -->
+    <div id="tab-trends" class="tab-content hidden">
+      <div class="trends-row">
+        <div class="card">
+          <div class="card-title">Disruptions detected vs. resolved</div>
+          <div class="card-subtitle">Last 7 days</div>
+          <div class="chart-wrapper short">
+            <canvas id="trendsChart" role="img" aria-label="Line chart comparing disruptions detected versus resolved across the last 7 days">
+              Detected per day: 12,18,9,22,15,8,14. Resolved per day: 10,15,9,19,15,8,12.
+            </canvas>
+          </div>
+          <div class="chart-legend">
+            <span class="chart-legend-item"><span class="chart-legend-swatch" style="background:#e24b4a"></span>Detected</span>
+            <span class="chart-legend-item"><span class="chart-legend-swatch" style="background:#1d9e75"></span>Resolved</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">On-time delivery rate</div>
+          <div class="card-subtitle">Last 8 weeks</div>
+          <div class="chart-wrapper short">
+            <canvas id="onTimeChart" role="img" aria-label="Line chart showing on-time delivery rate improving from 74% to 87% over 8 weeks">
+              On-time delivery rate: 74, 76, 78, 79, 82, 83, 85, 87 percent across weeks 1-8.
+            </canvas>
+          </div>
+          <div class="chart-legend">
+            <span class="chart-legend-item"><span class="chart-legend-swatch" style="background:#1d9e75"></span>On-time %</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Disruption categories — last 30 days</div>
+        <div class="card-subtitle">Breakdown by disruption type</div>
+        <div class="chart-wrapper">
+          <canvas id="categoryChart" role="img" aria-label="Horizontal bar chart of disruption categories: weather 34%, traffic 26%, port congestion 18%, supplier risk 14%, other 8%">
+            Disruption categories last 30 days: weather 34%, traffic 26%, port congestion 18%, supplier risk 14%, other 8%.
+          </canvas>
+        </div>
+        <div class="chart-legend">
+          <span class="chart-legend-item"><span class="chart-legend-swatch" style="background:#378add"></span>Weather · 34%</span>
+          <span class="chart-legend-item"><span class="chart-legend-swatch" style="background:#ef9f27"></span>Traffic · 26%</span>
+          <span class="chart-legend-item"><span class="chart-legend-swatch" style="background:#e24b4a"></span>Port congestion · 18%</span>
+          <span class="chart-legend-item"><span class="chart-legend-swatch" style="background:#888780"></span>Supplier risk · 14%</span>
+          <span class="chart-legend-item"><span class="chart-legend-swatch" style="background:#b4b2a9"></span>Other · 8%</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// =================================================
+// GLOBAL STATE
+// =================================================
+let atRiskCount = 47;
+let activeTeamFilter = 'all';
+let chartsInitialized = { supplier: false, trends: false };
+let clockSeconds = 0;
+
+const shipments = [
+  { id: 'SH-4421', route: 'Mumbai–Delhi',  eta: 'Today 18:30',    status: 'at-risk',  risk: 'High', issue: 'Weather ahead', action: 'reroute' },
+  { id: 'SH-4422', route: 'Mumbai–Delhi',  eta: 'Today 17:45',    status: 'on-track', risk: 'Low',  issue: '—',             action: null },
+  { id: 'SH-4423', route: 'Kolkata–Guw',   eta: 'Tomorrow 09:00', status: 'delayed',  risk: 'High', issue: 'Road blocked',  action: 'reroute' },
+  { id: 'SH-4424', route: 'Chennai–Hyd',   eta: 'Today 20:15',    status: 'rerouted', risk: 'Med',  issue: 'Traffic jam',   action: null },
+  { id: 'SH-4425', route: 'Chennai–Hyd',   eta: 'Today 19:50',    status: 'on-track', risk: 'Low',  issue: '—',             action: null },
+  { id: 'SH-4426', route: 'Kolkata–Guw',   eta: 'Tomorrow 11:30', status: 'at-risk',  risk: 'High', issue: 'Flood warning', action: 'reroute' },
+  { id: 'SH-4427', route: 'Mumbai–Delhi',  eta: 'Today 21:00',    status: 'on-track', risk: 'Low',  issue: '—',             action: null },
+  { id: 'SH-4428', route: 'Chennai–Hyd',   eta: 'Tomorrow 08:00', status: 'at-risk',  risk: 'Med',  issue: 'Port delay',    action: 'notify' }
+];
+
+const suppliers = [
+  { name: 'Verma Steels',     loc: 'Pune, MH',       score: 12, level: 'low' },
+  { name: 'Rajan Components', loc: 'Chennai, TN',    score: 78, level: 'high' },
+  { name: 'AK Plastics',      loc: 'Surat, GJ',      score: 45, level: 'med' },
+  { name: 'Bharat Textiles',  loc: 'Ludhiana, PB',   score: 22, level: 'low' },
+  { name: 'Horizon Circuits', loc: 'Bengaluru, KA',  score: 61, level: 'med' },
+  { name: 'PrimePack Ltd',    loc: 'Noida, UP',      score: 88, level: 'high' },
+  { name: 'SwiftMetal Co',    loc: 'Coimbatore, TN', score: 18, level: 'low' },
+  { name: 'Delta Polymers',   loc: 'Ahmedabad, GJ',  score: 34, level: 'low' }
+];
+
+let tasks = [
+  { text: 'Re-route 38 trucks via NH37',                           team: 'Logistics',        urgency: 'now',  done: false },
+  { text: 'Update Delhi-4 warehouse receiving schedule +1.4 hrs',  team: 'Warehouse',        urgency: 'now',  done: false },
+  { text: 'Send delay notification to 22 affected customers',      team: 'Customer service', urgency: 'now',  done: false },
+  { text: 'Check buffer stock for SKU TK-440, TK-441',             team: 'Procurement',      urgency: 'soon', done: false },
+  { text: 'Confirm NH37 capacity with 3PL partner',                team: 'Logistics',        urgency: 'soon', done: false },
+  { text: 'Update delivery ETAs in order management system',       team: 'Customer service', urgency: 'soon', done: false },
+  { text: 'Flag Rajan Components as at-risk in supplier registry', team: 'Procurement',      urgency: 'soon', done: false },
+  { text: 'Prepare incident report for management',                team: 'Logistics',        urgency: 'soon', done: true  }
+];
+
+// =================================================
+// TAB SWITCHING
+// =================================================
+function switchTab(tabName, clickedElement) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+  document.getElementById('tab-' + tabName).classList.remove('hidden');
+
+  document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+  clickedElement.classList.add('active');
+
+  // Lazy-init charts
+  if (tabName === 'supplier' && !chartsInitialized.supplier) {
+    initSupplierChart();
+    chartsInitialized.supplier = true;
+  }
+  if (tabName === 'trends' && !chartsInitialized.trends) {
+    initTrendsCharts();
+    chartsInitialized.trends = true;
+  }
+}
+
+// =================================================
+// RISK PREDICTOR
+// =================================================
+function updateRisk() {
+  const weather = parseInt(document.getElementById('weather-slider').value);
+  const traffic = parseInt(document.getElementById('traffic-slider').value);
+  const port = parseInt(document.getElementById('port-slider').value);
+
+  document.getElementById('weather-value').textContent = weather;
+  document.getElementById('traffic-value').textContent = traffic;
+  document.getElementById('port-value').textContent = port;
+
+  const score = Math.round(weather * 4.2 + traffic * 2.8 + port * 1.5);
+  const valueEl = document.getElementById('predictor-value');
+  const descEl = document.getElementById('predictor-desc');
+
+  valueEl.textContent = score;
+  valueEl.classList.remove('green', 'amber', 'red');
+
+  if (score < 30) {
+    valueEl.classList.add('green');
+    descEl.textContent = 'Low risk — normal operations';
+  } else if (score <= 60) {
+    valueEl.classList.add('amber');
+    descEl.textContent = 'Moderate risk — recommend early rerouting';
+  } else {
+    valueEl.classList.add('red');
+    descEl.textContent = 'High risk — trigger immediate action plan';
+  }
+}
+
+// =================================================
+// SHIPMENTS
+// =================================================
+function renderShipments(filtered) {
+  const tbody = document.getElementById('shipments-tbody');
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 24px; color: var(--text-tertiary);">No shipments match the current filters.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = filtered.map(s => {
+    const statusLabel = s.status.replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase());
+    const riskClass = s.risk === 'High' ? 'danger' : (s.risk === 'Med' ? 'warning' : 'success');
+    let actionHtml = '—';
+    if (s.action === 'reroute') {
+      actionHtml = '<button class="btn-primary" onclick="handleActionClick(this,\'reroute\')">Re-route ↗</button>';
+    } else if (s.action === 'notify') {
+      actionHtml = '<button class="btn-primary" onclick="handleActionClick(this,\'notify_customers\')">Notify ↗</button>';
+    }
+    return `<tr>
+      <td><span class="mono">${s.id}</span></td>
+      <td>${s.route}</td>
+      <td>${s.eta}</td>
+      <td><span class="status-dot ${s.status}"></span>${statusLabel}</td>
+      <td><span class="pill ${riskClass}">${s.risk}</span></td>
+      <td>${s.issue}</td>
+      <td>${actionHtml}</td>
+    </tr>`;
+  }).join('');
+}
+
+function filterShipments() {
+  const status = document.getElementById('filter-status').value;
+  const route = document.getElementById('filter-route').value;
+  const filtered = shipments.filter(s =>
+    (status === 'all' || s.status === status) &&
+    (route === 'all' || s.route === route)
+  );
+  renderShipments(filtered);
+}
+
+// =================================================
+// SUPPLIERS
+// =================================================
+function renderSuppliers() {
+  const grid = document.getElementById('supplier-grid');
+  grid.innerHTML = suppliers.map(s => {
+    const pillClass = s.level === 'high' ? 'danger' : (s.level === 'med' ? 'warning' : 'success');
+    const levelLabel = s.level === 'high' ? 'High' : (s.level === 'med' ? 'Med' : 'Low');
+    return `<div class="supplier-card">
+      <div class="supplier-head">
+        <div>
+          <div class="supplier-name">${s.name}</div>
+          <div class="supplier-loc">${s.loc}</div>
+        </div>
+        <span class="pill ${pillClass}">${s.score} · ${levelLabel}</span>
+      </div>
+      <div class="risk-bar">
+        <div class="risk-bar-fill ${s.level}" style="width: ${s.score}%"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// =================================================
+// COORDINATION
+// =================================================
+function renderTasks() {
+  const list = document.getElementById('task-list');
+  const filtered = activeTeamFilter === 'all'
+    ? tasks
+    : tasks.filter(t => t.team === activeTeamFilter);
+
+  if (!filtered.length) {
+    list.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-tertiary); font-size: 12px;">No tasks for this team.</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(t => {
+    const realIndex = tasks.indexOf(t);
+    let urgencyClass = 'warning';
+    let urgencyLabel = 'Soon';
+    if (t.urgency === 'now') { urgencyClass = 'danger'; urgencyLabel = 'Now'; }
+    if (t.done) { urgencyClass = 'success'; urgencyLabel = 'Done'; }
+
+    return `<div class="task-item">
+      <button class="task-checkbox ${t.done ? 'done' : ''}" onclick="toggleTask(${realIndex})" aria-label="Toggle task: ${t.text.replace(/"/g,'&quot;')}">
+        ${t.done ? '✓' : ''}
+      </button>
+      <span class="task-text ${t.done ? 'done' : ''}">${t.text}</span>
+      <span class="task-team">${t.team}</span>
+      <span class="task-urgency"><span class="pill ${urgencyClass}">${urgencyLabel}</span></span>
+    </div>`;
+  }).join('');
+}
+
+function filterTeam(team, el) {
+  activeTeamFilter = team;
+  document.querySelectorAll('.team-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderTasks();
+}
+
+function toggleTask(index) {
+  const wasDone = tasks[index].done;
+  tasks[index].done = !wasDone;
+
+  if (!wasDone) {
+    atRiskCount = Math.max(0, atRiskCount - 2);
+  } else {
+    atRiskCount = Math.min(47, atRiskCount + 2);
+  }
+
+  const el = document.getElementById('at-risk-count');
+  if (el) el.textContent = atRiskCount;
+
+  renderTasks();
+}
+
+// =================================================
+// ACTION BUTTONS
+// =================================================
+function handleActionClick(button, type) {
+  if (type === 'dismiss') {
+    const alertItem = button.closest('.alert-item');
+    if (alertItem) {
+      alertItem.style.opacity = '0.4';
+      alertItem.querySelectorAll('button').forEach(b => b.disabled = true);
+    }
+    return;
+  }
+
+  button.textContent = 'Done ✓';
+  button.className = 'btn-done';
+  button.disabled = true;
+}
+
+// =================================================
+// CLOCK
+// =================================================
+function startClock() {
+  const el = document.getElementById('clock-display');
+  setInterval(() => {
+    clockSeconds++;
+    if (clockSeconds < 60) {
+      el.textContent = `Updated ${clockSeconds}s ago`;
+    } else {
+      const m = Math.floor(clockSeconds / 60);
+      el.textContent = `Updated ${m}m ago`;
+    }
+  }, 1000);
+}
+
+// =================================================
+// CHART.JS
+// =================================================
+function setupChartDefaults() {
+  Chart.defaults.font.family = "'DM Sans', system-ui, sans-serif";
+  Chart.defaults.font.size = 11;
+  Chart.defaults.color = '#88877f';
+}
+
+function initSupplierChart() {
+  const ctx = document.getElementById('riskSignalChart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Delivery delays', 'Financial stress', 'News signals', 'Social signals'],
+      datasets: [{
+        data: [42, 28, 18, 12],
+        backgroundColor: ['#e24b4a', '#ef9f27', '#378add', '#888780'],
+        borderRadius: 4,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.y + '%' } } },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 60,
+          ticks: { callback: v => v + '%', font: { size: 11 } },
+          grid: { color: 'rgba(128,128,128,0.1)' }
+        },
+        x: {
+          ticks: { font: { size: 11 } },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+function initTrendsCharts() {
+  // Chart A: Detected vs Resolved
+  const trendsCtx = document.getElementById('trendsChart');
+  if (trendsCtx) {
+    new Chart(trendsCtx, {
+      type: 'line',
+      data: {
+        labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+        datasets: [
+          {
+            label: 'Detected',
+            data: [12,18,9,22,15,8,14],
+            borderColor: '#e24b4a',
+            backgroundColor: 'rgba(226,75,74,0.15)',
+            tension: 0.3,
+            pointRadius: 3,
+            fill: true
+          },
+          {
+            label: 'Resolved',
+            data: [10,15,9,19,15,8,12],
+            borderColor: '#1d9e75',
+            backgroundColor: 'rgba(29,158,117,0.15)',
+            tension: 0.3,
+            pointRadius: 3,
+            fill: true
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, ticks: { font: { size: 11 } }, grid: { color: 'rgba(128,128,128,0.1)' } },
+          x: { ticks: { font: { size: 11 } }, grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  // Chart B: On-time delivery
+  const onTimeCtx = document.getElementById('onTimeChart');
+  if (onTimeCtx) {
+    new Chart(onTimeCtx, {
+      type: 'line',
+      data: {
+        labels: ['W1','W2','W3','W4','W5','W6','W7','W8'],
+        datasets: [{
+          label: 'On-time %',
+          data: [74,76,78,79,82,83,85,87],
+          borderColor: '#1d9e75',
+          backgroundColor: 'rgba(29,158,117,0.15)',
+          tension: 0.3,
+          pointRadius: 3,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.y + '%' } } },
+        scales: {
+          y: { min: 70, max: 95, ticks: { callback: v => v + '%', font: { size: 11 } }, grid: { color: 'rgba(128,128,128,0.1)' } },
+          x: { ticks: { font: { size: 11 } }, grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  // Chart C: Disruption categories (horizontal)
+  const categoryCtx = document.getElementById('categoryChart');
+  if (categoryCtx) {
+    new Chart(categoryCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Weather','Traffic','Port congestion','Supplier risk','Other'],
+        datasets: [{
+          data: [34,26,18,14,8],
+          backgroundColor: ['#378add','#ef9f27','#e24b4a','#888780','#b4b2a9'],
+          borderRadius: 4,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.x + '%' } } },
+        scales: {
+          x: {
+            beginAtZero: true,
+            max: 45,
+            ticks: { callback: v => v + '%', font: { size: 11 } },
+            grid: { color: 'rgba(128,128,128,0.1)' }
+          },
+          y: {
+            ticks: { font: { size: 11 } },
+            grid: { display: false }
+          }
+        }
+      }
+    });
+  }
+}
+
+// =================================================
+// INITIALIZATION
+// =================================================
+document.addEventListener('DOMContentLoaded', () => {
+  setupChartDefaults();
+  renderShipments(shipments);
+  renderSuppliers();
+  renderTasks();
+  updateRisk();
+  startClock();
+});
+</script>
+</body>
+</html>
